@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GestaoFinanceiraApi.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace GestaoFinanceiraApi;
+namespace GestaoFinanceiraApi.Infrastructure.Connection;
 
 public class AppDbContext : DbContext
 {
