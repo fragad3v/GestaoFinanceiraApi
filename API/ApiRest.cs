@@ -3,13 +3,22 @@ using GestaoFinanceiraApi.Application.Services;
 
 namespace GestaoFinanceiraApi.API
 {
-    public class ApiRest(WebApplication app)
-    {
+    public class ApiRest
+    { 
+        
+        public ApiRest(WebApplication app)
+        {
+           
+            MapEndpoints();
+        }
+
         public void MapEndpoints()
         {
+            app.MapGet("/usuarios", ListarTodosUsuarios);
             app.MapGet("/usuarios/{id}", GetUsuarioById);
             app.MapPost("/usuarios", AdicionarUsuario);
             app.MapPut("/usuarios/{id}/saldo", AtualizarSaldo);
+            app.MapDelete("/usuarios/{id}", DeletarUsuario);
         }
 
         private static IResult GetUsuarioById(int id, UsuarioService usuarioService)
@@ -39,6 +48,20 @@ namespace GestaoFinanceiraApi.API
             return response is null
                 ? Results.NotFound(new { erro = $"Usuário {id} não encontrado." })
                 : Results.Ok(response);
+        }
+
+        private static IResult DeletarUsuario(int id, UsuarioService usuarioService)
+        {
+            var usuarioDeletado = usuarioService.DeletarUsuario(id);
+            return usuarioDeletado is null
+                ? Results.NotFound(new { erro = $"Usuário {id} não encontrado." })
+                : Results.Ok(new DeletarUsuarioResponseDto(usuarioDeletado.Id, usuarioDeletado.Nome, usuarioDeletado.Email, usuarioDeletado.Saldo));
+        }
+
+       private static IResult ListarTodosUsuarios(UsuarioService usuarioService)
+        {
+            var usuarios = usuarioService.ListarTodosUsuarios();
+            return Results.Ok(usuarios);
         }
     }
 }

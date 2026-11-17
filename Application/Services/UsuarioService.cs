@@ -24,10 +24,9 @@ namespace GestaoFinanceiraApi.Application.Services
             {
                 Nome = dto.Nome,
                 Email = dto.Email,
-                Saldo = 0 // Inicializa o saldo como 0
+                Saldo = 0 
             };
-            // Aqui você pode adicionar a lógica para salvar o usuário no banco de dados
-            // Por exemplo, usando um repositório ou contexto de banco de dados
+            
             var usuarioCriado = _usuarioRepository.AdicionarUsuario(usuario);
 
             if (usuarioCriado == null)
@@ -47,6 +46,15 @@ namespace GestaoFinanceiraApi.Application.Services
                 return null;
             }
             return new AtualizarSaldoResponseDto(usuarioAtualizado.Saldo);
+        }
+        public Usuario? DeletarUsuario(int id)
+        {
+            return _usuarioRepository.DeletarUsuario(id);
+        }
+
+        public Usuario[] ListarTodosUsuarios()
+        {
+            return _usuarioRepository.ListarTodosUsuarios();
         }
     }
 }

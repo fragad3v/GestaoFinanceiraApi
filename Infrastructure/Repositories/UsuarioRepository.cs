@@ -50,5 +50,21 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
                 
                 return result.Entity;
         }
+        public Usuario? DeletarUsuario(int id)
+        {
+            var existingUsuario = _dbContext.Usuarios.Find(id);
+            if (existingUsuario == null)
+            {
+                return null;
+            }
+            _dbContext.Usuarios.Remove(existingUsuario);
+            _dbContext.SaveChanges();
+            return existingUsuario;
+        }
+
+        public Usuario[] ListarTodosUsuarios()
+        {
+            return _dbContext.Usuarios.ToArray();
+        }
     }
 }
