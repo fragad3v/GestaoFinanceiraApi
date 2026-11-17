@@ -40,6 +40,7 @@ namespace GestaoFinanceiraApi.Application.Services
 
         public AtualizarSaldoResponseDto? AtualizarSaldo(int id, AtualizarSaldoRequestDto dto)
         {
+
             var usuarioAtualizado = _usuarioRepository.AtualizarSaldo(id, dto);
             if (usuarioAtualizado == null)
             {

@@ -20,8 +20,8 @@ public class ExceptionMiddleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-            var erro = new { mensagem = ex.Message };
+            var erro = new { mensagem = ex.Message};
             await context.Response.WriteAsync(JsonSerializer.Serialize(erro));
-        }
-    }
+        } 
+    } 
 }

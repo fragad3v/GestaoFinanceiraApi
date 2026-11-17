@@ -38,8 +38,7 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
 
         public Usuario? AtualizarSaldo(int id, AtualizarSaldoRequestDto dto)
         {
-            try
-            {
+           
                 var existingUsuario = _dbContext.Usuarios.Find(id);
                 if (existingUsuario == null)
                 {
@@ -50,11 +49,6 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
                 _dbContext.SaveChanges();
                 
                 return result.Entity;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
         }
     }
 }
