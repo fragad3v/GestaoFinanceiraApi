@@ -14,7 +14,7 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public Usuario? GetUsuarioById(int id)
+        public Usuario? BuscarUsuarioPorId(int id)
         {
             return _dbContext.Usuarios
                 .Include(u => u.Despesas)

@@ -9,10 +9,10 @@ namespace GestaoFinanceiraApi.Domain.Entities
         public decimal Valor { get; set; }
         public DateTime DataCriacao { get; set; }
 
-        public int? UsuarioId { get; set; }
+        public int UsuarioId { get; set; }
 
         [JsonIgnore]
-        public Usuario? Usuario { get; set; }
+        public required Usuario? Usuario { get; set; }
 
         public bool SubtrairValor(decimal quantia)
         {
@@ -24,11 +24,11 @@ namespace GestaoFinanceiraApi.Domain.Entities
             {
                 if (Usuario != null)
                 {
-                    Usuario.Saldo += Valor; // Adiciona o valor restante ao saldo do usuário
+                    Usuario.Saldo += Valor; 
                 }
             }
             Valor -= quantia;
-            return Valor == 0; // Subtração bem-sucedida
+            return Valor == 0; 
         }
 
     }

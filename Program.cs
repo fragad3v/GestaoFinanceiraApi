@@ -59,8 +59,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 // ENDPOINTS (Exemplos com documentação extra)
 // ==========================================
 
-var apiRest = new ApiRest(app);
-apiRest.MapEndpoints();
+var apiRest = new ApiRest();
+apiRest.MapEndpoints(app);
 
 
 // (Demais endpoints de despesas continuam aqui...)

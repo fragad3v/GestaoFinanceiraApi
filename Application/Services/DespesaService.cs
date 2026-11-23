@@ -17,6 +17,7 @@ namespace GestaoFinanceiraApi.Application.Services
         {
             var entity = new Despesa
             {
+                Usuario = null,
                 UsuarioId = despesa.UsuarioId,
                 Descricao = despesa.Descricao,
                 Valor = despesa.Valor
@@ -27,7 +28,9 @@ namespace GestaoFinanceiraApi.Application.Services
             {
                 return null;
             }
-            return new CriarDespesaResponseDto(entity.Descricao, entity.Valor, entity.UsuarioId.Value);
+            return new CriarDespesaResponseDto(entity.Descricao, entity.Valor, entity.UsuarioId);
         }
+
+         
     }
 }

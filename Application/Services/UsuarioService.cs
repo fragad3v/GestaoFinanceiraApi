@@ -13,9 +13,9 @@ namespace GestaoFinanceiraApi.Application.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        public Usuario GetUsuarioById(int id)
+        public Usuario? BuscarUsuarioPorId(int id)
         {
-            return _usuarioRepository.GetUsuarioById(id);
+            return _usuarioRepository.BuscarUsuarioPorId(id);
         }
 
         public CriarUsuarioResponseDto? CriarUsuario(CriarUsuarioRequestDto dto)
