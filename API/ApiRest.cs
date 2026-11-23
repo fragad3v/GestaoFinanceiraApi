@@ -73,5 +73,7 @@ namespace GestaoFinanceiraApi.API
                 ? Results.BadRequest(new { erro = "Não foi possível criar a despesa." })
                 : Results.Created("/despesas", response);
         }
+
+
     }
 }
