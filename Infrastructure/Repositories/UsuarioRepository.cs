@@ -14,20 +14,19 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public Usuario? BuscarUsuarioPorId(int id)
+        public async Task<Usuario?> BuscarUsuarioPorIdAsync(int id)
         {
-            return _dbContext.Usuarios
+            return await _dbContext.Usuarios
                 .Include(u => u.Despesas)
-                .FirstOrDefault(u => u.Id == id);
-
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public Usuario? AdicionarUsuario(Usuario usuario)
+        public async Task<Usuario?> AdicionarUsuarioAsync(Usuario usuario)
         {
             try
             {
-                var result = _dbContext.Usuarios.Add(usuario);
-                _dbContext.SaveChanges();
+                var result = await _dbContext.Usuarios.AddAsync(usuario);
+                await _dbContext.SaveChangesAsync();
                 return result.Entity;
             }
             catch (Exception ex)
@@ -36,35 +35,37 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
             }
         }
 
-        public Usuario? AtualizarSaldo(int id, AtualizarSaldoRequestDto dto)
+        public async Task<Usuario?> AtualizarSaldoAsync(int id, AtualizarSaldoRequestDto dto)
         {
            
-                var existingUsuario = _dbContext.Usuarios.Find(id);
+                var existingUsuario = await _dbContext.Usuarios.FindAsync(id);
                 if (existingUsuario == null)
                 {
                     return null;
                 }
                 existingUsuario.Saldo += dto.AtualizacaoSaldo;
-                var result = _dbContext.Update(existingUsuario);
-                _dbContext.SaveChanges();
+                var result =  _dbContext.Update(existingUsuario);
+                await _dbContext.SaveChangesAsync();
                 
                 return result.Entity;
         }
-        public Usuario? DeletarUsuario(int id)
+        public async Task<Usuario?> DeletarUsuarioAsync(int id)
         {
-            var existingUsuario = _dbContext.Usuarios.Find(id);
+            var existingUsuario = await _dbContext.Usuarios.FindAsync(id);
             if (existingUsuario == null)
             {
                 return null;
             }
             _dbContext.Usuarios.Remove(existingUsuario);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return existingUsuario;
         }
 
-        public Usuario[] ListarTodosUsuarios()
+        public async Task<List<Usuario>> ListarTodosUsuariosAsync()
         {
-            return _dbContext.Usuarios.ToArray();
+            return await _dbContext.Usuarios
+                .Include(u => u.Despesas)
+                .ToListAsync();
         }
     }
 }

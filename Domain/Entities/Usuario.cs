@@ -24,8 +24,7 @@ namespace GestaoFinanceiraApi.Domain.Entities
             }
         }
 
-
-        [JsonIgnore]
+        
         public List<Despesa> Despesas { get; set; } = new();
 
     }

@@ -13,19 +13,14 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public bool AdicionarDespesa(Despesa despesa)
+        public async Task<bool> AdicionarDespesaAsync(Despesa despesa)
         {
-            try
-            {
-                _dbContext.Despesas.Add(despesa);
-                _dbContext.SaveChanges();
 
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
+            await _dbContext.Despesas.AddAsync(despesa);
+            await _dbContext.SaveChangesAsync();
+
             return true;
         }
     }
 }
+

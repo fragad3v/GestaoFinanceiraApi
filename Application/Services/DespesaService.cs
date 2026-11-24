@@ -13,7 +13,7 @@ namespace GestaoFinanceiraApi.Application.Services
             _despesaRepository = despesaRepository;
         }
 
-        public CriarDespesaResponseDto? AdicionarDespesa(CriarDespesaRequestDto despesa)
+        public async Task<CriarDespesaResponseDto?> AdicionarDespesaAsync(CriarDespesaRequestDto despesa)
         {
             var entity = new Despesa
             {
@@ -22,7 +22,7 @@ namespace GestaoFinanceiraApi.Application.Services
                 Descricao = despesa.Descricao,
                 Valor = despesa.Valor
             };
-            var sucesso = _despesaRepository.AdicionarDespesa(entity);
+            var sucesso = await _despesaRepository.AdicionarDespesaAsync(entity);
 
             if (!sucesso)
             {

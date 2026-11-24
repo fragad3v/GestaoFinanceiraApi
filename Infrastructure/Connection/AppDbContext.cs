@@ -14,6 +14,11 @@ public class AppDbContext : DbContext
     {
         modelBuilder.Entity<Despesa>()
             .Property(d => d.Valor)
-            .HasPrecision(18, 2); // Boa prática para valores monetários
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Usuario>()
+            .HasMany(u => u.Despesas)
+            .WithOne(d => d.Usuario)
+            .HasForeignKey(d => d.UsuarioId);
     }
 }

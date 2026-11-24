@@ -12,24 +12,6 @@ namespace GestaoFinanceiraApi.Domain.Entities
         public int UsuarioId { get; set; }
 
         [JsonIgnore]
-        public required Usuario? Usuario { get; set; }
-
-        public bool SubtrairValor(decimal quantia)
-        {
-            if (quantia <= 0)
-            {
-                throw new ArgumentException("A quantia a ser subtraída deve ser maior que zero.");
-            }
-            if (quantia > Valor)
-            {
-                if (Usuario != null)
-                {
-                    Usuario.Saldo += Valor; 
-                }
-            }
-            Valor -= quantia;
-            return Valor == 0; 
-        }
-
+        public Usuario? Usuario { get; set; } = null;
     }
 }

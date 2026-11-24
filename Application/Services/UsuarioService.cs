@@ -13,12 +13,12 @@ namespace GestaoFinanceiraApi.Application.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        public Usuario? BuscarUsuarioPorId(int id)
+        public async Task<Usuario?> BuscarUsuarioPorIdAsync(int id)
         {
-            return _usuarioRepository.BuscarUsuarioPorId(id);
+            return await _usuarioRepository.BuscarUsuarioPorIdAsync(id);
         }
 
-        public CriarUsuarioResponseDto? CriarUsuario(CriarUsuarioRequestDto dto)
+        public async Task<CriarUsuarioResponseDto?> CriarUsuarioAsync(CriarUsuarioRequestDto dto)
         {
             var usuario = new Usuario
             {
@@ -27,7 +27,7 @@ namespace GestaoFinanceiraApi.Application.Services
                 Saldo = 0 
             };
             
-            var usuarioCriado = _usuarioRepository.AdicionarUsuario(usuario);
+            var usuarioCriado = await _usuarioRepository.AdicionarUsuarioAsync(usuario);
 
             if (usuarioCriado == null)
             {
@@ -37,24 +37,34 @@ namespace GestaoFinanceiraApi.Application.Services
             return new CriarUsuarioResponseDto(usuarioCriado.Nome, usuarioCriado.Email, usuarioCriado.Saldo);
         }
 
-        public AtualizarSaldoResponseDto? AtualizarSaldo(int id, AtualizarSaldoRequestDto dto)
+        public async Task<AtualizarSaldoResponseDto?> AtualizarSaldoAsync(int id, AtualizarSaldoRequestDto dto)
         {
 
-            var usuarioAtualizado = _usuarioRepository.AtualizarSaldo(id, dto);
+            var usuarioAtualizado = await _usuarioRepository.AtualizarSaldoAsync(id, dto);
             if (usuarioAtualizado == null)
             {
                 return null;
             }
             return new AtualizarSaldoResponseDto(usuarioAtualizado.Saldo);
         }
-        public Usuario? DeletarUsuario(int id)
+        public async Task<Usuario?> DeletarUsuarioAsync(int id)
         {
-            return _usuarioRepository.DeletarUsuario(id);
+            return await _usuarioRepository.DeletarUsuarioAsync(id);
         }
 
-        public Usuario[] ListarTodosUsuarios()
+        public async Task<List<BuscarUsuarioResponseDto>> ListarTodosUsuariosAsync()
         {
-            return _usuarioRepository.ListarTodosUsuarios();
+            var entities = await _usuarioRepository.ListarTodosUsuariosAsync();
+
+            return entities.ConvertAll(entity => new BuscarUsuarioResponseDto
+            (
+                
+                entity.Nome,
+                entity.Email,
+                entity.Saldo,
+                entity.Despesas,
+                entity.Saldo - entity.Despesas.Sum(d => d.Valor)
+            ));
         }
     }
 }

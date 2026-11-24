@@ -1,4 +1,4 @@
-using GestaoFinanceiraApi;
+using GestaoFinanceiraApi.API.Gateways;
 using GestaoFinanceiraApi.API;
 using GestaoFinanceiraApi.Application.Services;
 using GestaoFinanceiraApi.Infrastructure.Connection;

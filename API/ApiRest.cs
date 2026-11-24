@@ -1,5 +1,6 @@
 ﻿using GestaoFinanceiraApi.Application.DTOs;
 using GestaoFinanceiraApi.Application.Services;
+using System.Text.Json;
 
 namespace GestaoFinanceiraApi.API
 {
@@ -7,29 +8,28 @@ namespace GestaoFinanceiraApi.API
     {   
         public void MapEndpoints(WebApplication app)
         {
-            app.MapGet("/usuarios", ListarTodosUsuarios);
-            app.MapGet("/usuarios/{id}", BuscarUsuarioPorId);
-            app.MapPost("/usuarios", AdicionarUsuario);
-            app.MapPut("/usuarios/{id}/saldo", AtualizarSaldo);
-            app.MapDelete("/usuarios/{id}", DeletarUsuario);
-            app.MapPost("/despesas", AdicionarDespesa);
+            app.MapGet("/usuarios", ListarTodosUsuariosAsync);
+            app.MapGet("/usuarios/{id}", BuscarUsuarioPorIdAsync);
+            app.MapPost("/usuarios", AdicionarUsuarioAsync);
+            app.MapPut("/usuarios/{id}/saldo", AtualizarSaldoAsync);
+            app.MapDelete("/usuarios/{id}", DeletarUsuarioAsync);
+            app.MapPost("/despesas", AdicionarDespesaAsync);
         }
 
         [EndpointDescription("Buscar usuário por Id.")]
-        private static IResult BuscarUsuarioPorId(int id, UsuarioService usuarioService)
+        private async static Task<IResult> BuscarUsuarioPorIdAsync(int id, UsuarioService usuarioService)
         {
-            var usuario = usuarioService.BuscarUsuarioPorId(id);
+            var usuario = await usuarioService.BuscarUsuarioPorIdAsync(id);
 
-            return usuario is null
+            return usuario is null 
                 ? Results.NotFound(new { erro = $"Usuário {id} não encontrado." })
                 : Results.Ok(usuario);
         }
 
         [EndpointDescription("Adicionar usuário.")]
-        private static IResult AdicionarUsuario(
-            CriarUsuarioRequestDto dto, UsuarioService usuarioService)
+        private async static Task<IResult> AdicionarUsuarioAsync(CriarUsuarioRequestDto dto, UsuarioService usuarioService)
         {
-            var response = usuarioService.CriarUsuario(dto);
+            var response = await usuarioService.CriarUsuarioAsync(dto);
 
             return response is null
                 ? Results.BadRequest(new { erro = "Não foi possível criar o usuário." })
@@ -37,10 +37,9 @@ namespace GestaoFinanceiraApi.API
         }
 
         [EndpointDescription("Adicionar saldo.")]
-        private static IResult AtualizarSaldo(
-            int id, AtualizarSaldoRequestDto dto, UsuarioService usuarioService)
+        private async static Task<IResult> AtualizarSaldoAsync(int id, AtualizarSaldoRequestDto dto, UsuarioService usuarioService)
         {
-            var response = usuarioService.AtualizarSaldo(id, dto);
+            var response = await usuarioService.AtualizarSaldoAsync(id, dto);
 
             return response is null
                 ? Results.NotFound(new { erro = $"Usuário {id} não encontrado." })
@@ -48,32 +47,26 @@ namespace GestaoFinanceiraApi.API
         }
 
         [EndpointDescription("Deletar usuário por Id.")]
-        private static IResult DeletarUsuario(int id, UsuarioService usuarioService)
+        private async static Task<IResult> DeletarUsuarioAsync(int id, UsuarioService usuarioService)
         {
-            var usuarioDeletado = usuarioService.DeletarUsuario(id);
+            var usuarioDeletado = await usuarioService.DeletarUsuarioAsync(id);
             return usuarioDeletado is null
                 ? Results.NotFound(new { erro = $"Usuário {id} não encontrado." })
                 : Results.Ok(new DeletarUsuarioResponseDto(usuarioDeletado.Id, usuarioDeletado.Nome, usuarioDeletado.Email, usuarioDeletado.Saldo));
         }
 
         [EndpointDescription("Listar todos usuários.")]
-        private static IResult ListarTodosUsuarios(UsuarioService usuarioService)
+        private async static Task<IResult> ListarTodosUsuariosAsync(UsuarioService usuarioService)
         {
-            var usuarios = usuarioService.ListarTodosUsuarios();
+            var usuarios = await usuarioService.ListarTodosUsuariosAsync();
             return Results.Ok(usuarios);
         }
 
         [EndpointDescription("Adicionar despesa.")]
-        private static IResult AdicionarDespesa(
-            CriarDespesaRequestDto dto, DespesaService despesaService)
+        private async static Task<IResult> AdicionarDespesaAsync(CriarDespesaRequestDto dto, DespesaService despesaService)
         {
-            var response = despesaService.AdicionarDespesa(dto);
-
-            return response is null
-                ? Results.BadRequest(new { erro = "Não foi possível criar a despesa." })
-                : Results.Created("/despesas", response);
+            var despesas = await despesaService.AdicionarDespesaAsync(dto);
+                return Results.Created("/despesas", despesas);
         }
-
-
     }
 }
