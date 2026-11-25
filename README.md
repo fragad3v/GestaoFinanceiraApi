@@ -40,6 +40,7 @@ GestaoFinanceiraApi/
 ├── Infrastructure/
 │   ├── Connection/              # AppDbContext (EF Core)
 │   └── Repositories/            # UsuarioRepository, DespesaRepository
+├── Shared/                      # DateTimeHelper (formatação de datas)
 ├── Properties/                  # launchSettings.json
 └── Program.cs                   # Configuração, DI e inicialização
 ```
@@ -72,7 +73,7 @@ Usuario 1 ──────── N Despesa
 | `id` | int | Identificador |
 | `descricao` | string | Descrição da despesa |
 | `valor` | decimal(18,2) | Valor da despesa (deve ser maior que zero) |
-| `dataCriacao` | DateTime (UTC) | Data de criação, preenchida automaticamente |
+| `dataCriacao` | string | Data de criação no formato `dd/MM/yyyy HH:mm`, preenchida automaticamente |
 | `usuarioId` | int | Usuário dono da despesa (chave estrangeira) |
 
 > Ao remover um usuário, suas despesas também são removidas (exclusão em cascata).
@@ -166,9 +167,11 @@ Resposta `201 Created`:
 
 ```json
 {
+  "nomeUsuario": "Maria Silva",
   "descricao": "Supermercado",
   "valor": 230.90,
-  "usuarioId": 1
+  "usuarioId": 1,
+  "dataCriacao": "10/01/2026 14:30"
 }
 ```
 
@@ -187,7 +190,7 @@ Nesta listagem as despesas vêm resumidas, sem ids.
       {
         "descricao": "Supermercado",
         "valor": 230.90,
-        "dataCriacao": "2026-01-10T14:30:00Z"
+        "dataCriacao": "10/01/2026 14:30"
       }
     ],
     "saldoAtualizado": 1269.10
@@ -210,7 +213,7 @@ Na busca individual cada despesa traz seu próprio `id` e o `usuarioId` do dono.
       "id": 1,
       "descricao": "Supermercado",
       "valor": 230.90,
-      "dataCriacao": "2026-01-10T14:30:00Z",
+      "dataCriacao": "10/01/2026 14:30",
       "usuarioId": 1
     }
   ],
@@ -237,8 +240,8 @@ Resposta `200 OK` (retorna o usuário removido):
 
 | Código | Situação | Exemplo de corpo |
 | --- | --- | --- |
-| `400 Bad Request` | Regra de negócio violada (saldo negativo, valor de despesa ≤ 0) | `{ "status": 400, "mensagem": "O saldo não pode ser negativo!" }` |
-| `404 Not Found` | Usuário não encontrado | `{ "erro": "Usuário 99 não encontrado." }` |
+| `400 Bad Request` | Regra de negócio violada (saldo negativo, valor de despesa ≤ 0, usuário inexistente ao registrar despesa) | `{ "status": 400, "mensagem": "O saldo não pode ser negativo!" }` |
+| `404 Not Found` | Usuário não encontrado (busca, atualização de saldo e remoção) | `{ "erro": "Usuário 99 não encontrado." }` |
 | `500 Internal Server Error` | Erro inesperado | `{ "status": 500, "mensagem": "Ocorreu um erro interno no servidor." }` |
 
 ## 📏 Regras de negócio
@@ -246,8 +249,8 @@ Resposta `200 OK` (retorna o usuário removido):
 - Todo usuário é criado com **saldo 0**.
 - O **saldo não pode ficar negativo**: a regra é aplicada na própria entidade `Usuario`.
 - O **valor de uma despesa deve ser maior que zero**.
-- Só é possível registrar despesa para um **usuário existente**.
-- A data da despesa é registrada automaticamente em **UTC**.
+- Só é possível registrar despesa para um **usuário existente** (caso contrário a API responde `400`).
+- A data da despesa é registrada automaticamente, no formato `dd/MM/yyyy HH:mm`, com o horário do servidor.
 - O **saldo atualizado** é calculado na consulta (`saldo − total de despesas`). Registrar uma despesa não altera o saldo armazenado.
 
 ## 🗺️ Roadmap (v2)
