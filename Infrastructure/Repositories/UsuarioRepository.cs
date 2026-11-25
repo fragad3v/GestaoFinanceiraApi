@@ -22,17 +22,10 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
         }
 
         public async Task<Usuario?> AdicionarUsuarioAsync(Usuario usuario)
-        {
-            try
-            {
+        {  
                 var result = await _dbContext.Usuarios.AddAsync(usuario);
                 await _dbContext.SaveChangesAsync();
                 return result.Entity;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
         }
 
         public async Task<Usuario?> AtualizarSaldoAsync(int id, AtualizarSaldoRequestDto dto)

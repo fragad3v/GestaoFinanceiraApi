@@ -13,9 +13,20 @@ namespace GestaoFinanceiraApi.Application.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        public async Task<Usuario?> BuscarUsuarioPorIdAsync(int id)
+        public async Task<BuscarUsuarioResponseDto?> BuscarUsuarioPorIdAsync(int id)
         {
-            return await _usuarioRepository.BuscarUsuarioPorIdAsync(id);
+            var u =  await _usuarioRepository.BuscarUsuarioPorIdAsync(id);
+            if (u is null) return null;
+
+            return new BuscarUsuarioResponseDto(
+               u.Id,
+               u.Nome,
+               u.Email,
+               u.Saldo,
+               u.Despesas
+                   .Select(d => new DespesaDetalheResponseDto(d.Id, d.Descricao, d.Valor, d.DataCriacao, d.UsuarioId))
+                   .ToList(),
+               u.Saldo - u.Despesas.Sum(d => d.Valor));
         }
 
         public async Task<CriarUsuarioResponseDto?> CriarUsuarioAsync(CriarUsuarioRequestDto dto)
@@ -52,18 +63,20 @@ namespace GestaoFinanceiraApi.Application.Services
             return await _usuarioRepository.DeletarUsuarioAsync(id);
         }
 
-        public async Task<List<BuscarUsuarioResponseDto>> ListarTodosUsuariosAsync()
+        public async Task<List<ListarUsuarioResponseDto>> ListarTodosUsuariosAsync()
         {
             var entities = await _usuarioRepository.ListarTodosUsuariosAsync();
 
-            return entities.ConvertAll(entity => new BuscarUsuarioResponseDto
+            return entities.ConvertAll(u => new ListarUsuarioResponseDto
             (
-                
-                entity.Nome,
-                entity.Email,
-                entity.Saldo,
-                entity.Despesas,
-                entity.Saldo - entity.Despesas.Sum(d => d.Valor)
+                u.Id,
+                u.Nome,
+                u.Email,
+                u.Saldo,
+                u.Despesas
+                    .Select(d => new DespesaResponseDto(d.Descricao, d.Valor, d.DataCriacao))
+                    .ToList(),
+                u.Saldo - u.Despesas.Sum(d => d.Valor)
             ));
         }
     }
