@@ -1,6 +1,5 @@
 ﻿using GestaoFinanceiraApi.Application.DTOs;
 using GestaoFinanceiraApi.Application.Services;
-using GestaoFinanceiraApi.Domain.Entities;
 
 namespace GestaoFinanceiraApi.API
 {

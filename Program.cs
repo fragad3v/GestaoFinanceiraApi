@@ -20,11 +20,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
-
-// === ADICIONE ESTAS LINHAS PARA O SWAGGER ===
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// ============================================
 
 builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<DespesaRepository>();
@@ -42,27 +39,17 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureCreated();
 }
 
-// === ADICIONE ESTAS LINHAS NO PIPELINE ===
-// (Geralmente ativado em ambiente de desenvolvimento)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(); // Disponibiliza a interface visual em /swagger
     app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 }
-// ========================================
 
 // Middleware global de erros
 app.UseMiddleware<ExceptionMiddleware>();
 
-// ==========================================
-// ENDPOINTS (Exemplos com documentação extra)
-// ==========================================
-
 var apiRest = new ApiRest();
 apiRest.MapEndpoints(app);
-
-
-// (Demais endpoints de despesas continuam aqui...)
 
 app.Run();
