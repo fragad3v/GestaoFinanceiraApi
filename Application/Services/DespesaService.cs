@@ -13,24 +13,25 @@ namespace GestaoFinanceiraApi.Application.Services
             _despesaRepository = despesaRepository;
         }
 
-        public async Task<CriarDespesaResponseDto?> AdicionarDespesaAsync(CriarDespesaRequestDto despesa)
+        public async Task<CriarDespesaResponseDto?> AdicionarDespesaAsync(CriarDespesaRequestDto dto)
         {
+            if (dto.Valor <= 0)
+                throw new ArgumentException("O valor da despesa deve ser maior que zero.");
+
+            if (!await _despesaRepository.UsuarioExisteAsync(dto.UsuarioId))
+                return null;
+
             var entity = new Despesa
             {
-                Usuario = null,
-                UsuarioId = despesa.UsuarioId,
-                Descricao = despesa.Descricao,
-                Valor = despesa.Valor
+                UsuarioId = dto.UsuarioId,
+                Descricao = dto.Descricao,
+                Valor = dto.Valor,
+                DataCriacao = DateTime.UtcNow
             };
-            var sucesso = await _despesaRepository.AdicionarDespesaAsync(entity);
 
-            if (!sucesso)
-            {
-                return null;
-            }
+            await _despesaRepository.AdicionarDespesaAsync(entity);
+
             return new CriarDespesaResponseDto(entity.Descricao, entity.Valor, entity.UsuarioId);
         }
-
-         
     }
 }

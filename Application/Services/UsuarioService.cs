@@ -28,7 +28,7 @@ namespace GestaoFinanceiraApi.Application.Services
                    .ToList(),
                u.Saldo - u.Despesas.Sum(d => d.Valor));
         }
-
+            
         public async Task<CriarUsuarioResponseDto?> CriarUsuarioAsync(CriarUsuarioRequestDto dto)
         {
             var usuario = new Usuario

@@ -31,14 +31,13 @@ public class ExceptionMiddleware
     {
         context.Response.ContentType = "application/json";
 
-        // Define o código de status HTTP com base no tipo de exceção, se necessário
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
         var response = new
         {
             status = context.Response.StatusCode,
             message = "Ocorreu um erro interno no servidor.",
-            detailed = exception.Message // Em produção, você pode querer omitir ou restringir isto
+            detailed = exception.Message 
         };
 
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

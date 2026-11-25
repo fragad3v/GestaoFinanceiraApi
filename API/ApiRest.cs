@@ -1,6 +1,6 @@
 ﻿using GestaoFinanceiraApi.Application.DTOs;
 using GestaoFinanceiraApi.Application.Services;
-using System.Text.Json;
+using GestaoFinanceiraApi.Domain.Entities;
 
 namespace GestaoFinanceiraApi.API
 {
@@ -20,7 +20,6 @@ namespace GestaoFinanceiraApi.API
         private async static Task<IResult> BuscarUsuarioPorIdAsync(int id, UsuarioService usuarioService)
         {
             var usuario = await usuarioService.BuscarUsuarioPorIdAsync(id);
-
             return usuario is null 
                 ? Results.NotFound(new { erro = $"Usuário {id} não encontrado." })
                 : Results.Ok(usuario);
@@ -30,7 +29,6 @@ namespace GestaoFinanceiraApi.API
         private async static Task<IResult> AdicionarUsuarioAsync(CriarUsuarioRequestDto dto, UsuarioService usuarioService)
         {
             var response = await usuarioService.CriarUsuarioAsync(dto);
-
             return response is null
                 ? Results.BadRequest(new { erro = "Não foi possível criar o usuário." })
                 : Results.Created("/usuarios", response);
@@ -40,7 +38,6 @@ namespace GestaoFinanceiraApi.API
         private async static Task<IResult> AtualizarSaldoAsync(int id, AtualizarSaldoRequestDto dto, UsuarioService usuarioService)
         {
             var response = await usuarioService.AtualizarSaldoAsync(id, dto);
-
             return response is null
                 ? Results.NotFound(new { erro = $"Usuário {id} não encontrado." })
                 : Results.Ok(response);
@@ -66,7 +63,9 @@ namespace GestaoFinanceiraApi.API
         private async static Task<IResult> AdicionarDespesaAsync(CriarDespesaRequestDto dto, DespesaService despesaService)
         {
             var despesas = await despesaService.AdicionarDespesaAsync(dto);
-                return Results.Created("/despesas", despesas);
+            return despesas is null
+                ? Results.NotFound(new { erro = $"Usuário {dto.UsuarioId} não encontrado." })
+                : Results.Created($"/usuarios/{dto.UsuarioId}", despesas);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using GestaoFinanceiraApi.Domain.Entities;
 using GestaoFinanceiraApi.Infrastructure.Connection;
+using Microsoft.EntityFrameworkCore;
 
 namespace GestaoFinanceiraApi.Infrastructure.Repositories
 {
@@ -20,6 +21,11 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<bool> UsuarioExisteAsync(int usuarioId)
+        {
+            return await _dbContext.Usuarios.AnyAsync(u => u.Id == usuarioId);
         }
     }
 }
