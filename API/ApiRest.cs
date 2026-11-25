@@ -4,15 +4,48 @@ using GestaoFinanceiraApi.Application.Services;
 namespace GestaoFinanceiraApi.API
 {
     public class ApiRest
-    {   
+    {
         public void MapEndpoints(WebApplication app)
         {
-            app.MapGet("/usuarios", ListarTodosUsuariosAsync);
-            app.MapGet("/usuarios/{id}", BuscarUsuarioPorIdAsync);
-            app.MapPost("/usuarios", AdicionarUsuarioAsync);
-            app.MapPut("/usuarios/{id}/saldo", AtualizarSaldoAsync);
-            app.MapDelete("/usuarios/{id}", DeletarUsuarioAsync);
-            app.MapPost("/despesas", AdicionarDespesaAsync);
+            var usuarios = app.MapGroup("/usuarios").WithTags("Usuários");
+
+            usuarios.MapGet("/", ListarTodosUsuariosAsync)
+                .WithSummary("Listar usuários")
+                .WithDescription("Retorna todos os usuários com suas despesas e o saldo atualizado.")
+                .Produces<List<ListarUsuarioResponseDto>>(StatusCodes.Status200OK);
+
+            usuarios.MapGet("/{id}", BuscarUsuarioPorIdAsync)
+                .WithSummary("Buscar usuário por Id")
+                .WithDescription("Retorna o usuário com o detalhe de cada despesa.")
+                .Produces<BuscarUsuarioResponseDto>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
+
+            usuarios.MapPost("/", AdicionarUsuarioAsync)
+                .WithSummary("Criar usuário")
+                .WithDescription("Cria um usuário com saldo inicial 0.")
+                .Produces<CriarUsuarioResponseDto>(StatusCodes.Status201Created)
+                .Produces(StatusCodes.Status400BadRequest);
+
+            usuarios.MapPut("/{id}/saldo", AtualizarSaldoAsync)
+                .WithSummary("Atualizar saldo")
+                .WithDescription("Soma o valor informado ao saldo. Use valor negativo para debitar. O saldo não pode ficar negativo.")
+                .Produces<AtualizarSaldoResponseDto>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest)
+                .Produces(StatusCodes.Status404NotFound);
+
+            usuarios.MapDelete("/{id}", DeletarUsuarioAsync)
+                .WithSummary("Remover usuário")
+                .WithDescription("Remove o usuário e todas as suas despesas.")
+                .Produces<DeletarUsuarioResponseDto>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
+
+            var despesas = app.MapGroup("/despesas").WithTags("Despesas");
+
+            despesas.MapPost("/", AdicionarDespesaAsync)
+                .WithSummary("Registrar despesa")
+                .WithDescription("Registra uma despesa para um usuário existente. O valor deve ser maior que zero.")
+                .Produces<CriarDespesaResponseDto>(StatusCodes.Status201Created)
+                .Produces(StatusCodes.Status400BadRequest);
         }
 
         [EndpointDescription("Buscar usuário por Id.")]

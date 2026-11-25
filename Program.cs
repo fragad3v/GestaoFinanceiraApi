@@ -1,9 +1,10 @@
-using GestaoFinanceiraApi.API.Gateways;
 using GestaoFinanceiraApi.API;
+using GestaoFinanceiraApi.API.Gateways;
 using GestaoFinanceiraApi.Application.Services;
 using GestaoFinanceiraApi.Infrastructure.Connection;
 using GestaoFinanceiraApi.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -21,7 +22,15 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Gestão Financeira API",
+        Version = "v1",
+        Description = "API REST para controle de usuários, saldo e despesas. Projeto de estudo em .NET 8 com Clean Architecture."
+    });
+});
 
 builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<DespesaRepository>();
