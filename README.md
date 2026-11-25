@@ -1,15 +1,17 @@
 # 💰 Gestão Financeira API
 
-API REST em **.NET 8** (Minimal API) para gerenciamento financeiro pessoal. Permite cadastrar usuários, controlar o saldo de cada um e registrar despesas, com persistência em **SQLite** via **Entity Framework Core**.
+API REST em **.NET 8** (Minimal API) para gerenciamento financeiro pessoal. Permite cadastrar usuários, controlar o saldo de cada um e registrar despesas, calculando automaticamente o **saldo atualizado** (saldo menos o total de despesas).
 
-> 🚧 Projeto em desenvolvimento. Veja a seção [Roadmap](#-roadmap) para o que ainda está por vir.
+Construída com **Entity Framework Core + SQLite**, programação **assíncrona**, DTOs de entrada e saída e organização em camadas inspirada em Clean Architecture.
 
 ## ✨ Funcionalidades
 
 - Cadastro, consulta, listagem e remoção de usuários
-- Atualização de saldo (crédito/débito) com validação para impedir saldo negativo
-- Registro de despesas vinculadas a um usuário (camada de serviço/repositório pronta)
-- Tratamento global de exceções com respostas JSON padronizadas
+- Atualização de saldo por valor incremental (positivo ou negativo)
+- Registro de despesas vinculadas a um usuário
+- Listagem de usuários com suas despesas e **saldo atualizado** calculado
+- Validações de regra de negócio (saldo não negativo, valor de despesa positivo, usuário existente)
+- Tratamento global de exceções com resposta JSON padronizada
 - Documentação interativa com **Swagger UI**
 - Banco SQLite criado automaticamente na primeira execução
 
@@ -19,34 +21,40 @@ API REST em **.NET 8** (Minimal API) para gerenciamento financeiro pessoal. Perm
 | --- | --- | --- |
 | .NET / ASP.NET Core | 8.0 | Framework principal (Minimal API) |
 | Entity Framework Core | 8.0.0 | ORM |
-| EF Core SQLite | 8.0.0 | Provedor de banco de dados |
+| EF Core SQLite | 8.0.0 | Banco de dados |
 | Swashbuckle.AspNetCore | 8.0.0 | Swagger / OpenAPI |
 
 ## 🏗️ Arquitetura
 
-O projeto segue uma separação em camadas, inspirada em Clean Architecture:
-
 ```
 GestaoFinanceiraApi/
-├── API/                    # Camada de apresentação
-│   ├── ApiRest.cs          # Mapeamento dos endpoints
-│   └── Gateways/           # Middlewares
-├── Application/            # Regras de aplicação
-│   ├── DTOs/               # Records de request/response
-│   └── Services/           # UsuarioService, DespesaService
+├── API/
+│   ├── ApiRest.cs               # Mapeamento e handlers dos endpoints
+│   └── Gateways/
+│       └── ExceptionMiddleware  # Middleware global de erros
+├── Application/
+│   ├── DTOs/                    # Records de request/response
+│   └── Services/                # UsuarioService, DespesaService
 ├── Domain/
-│   └── Entities/           # Usuario, Despesa
+│   └── Entities/                # Usuario, Despesa
 ├── Infrastructure/
-│   ├── Connection/         # AppDbContext (EF Core)
-│   └── Repositories/       # UsuarioRepository, DespesaRepository
-├── Properties/             # launchSettings.json
-├── ExceptionMiddleware.cs  # Tratamento de erros de validação (400)
-└── Program.cs              # Configuração e inicialização
+│   ├── Connection/              # AppDbContext (EF Core)
+│   └── Repositories/            # UsuarioRepository, DespesaRepository
+├── Properties/                  # launchSettings.json
+└── Program.cs                   # Configuração, DI e inicialização
 ```
 
-**Fluxo de uma requisição:** `Endpoint (ApiRest)` → `Service` → `Repository` → `AppDbContext (SQLite)`
+**Fluxo de uma requisição:**
+
+`Endpoint (ApiRest)` → `Service` → `Repository` → `AppDbContext (SQLite)`
+
+A API devolve apenas DTOs: as entidades de domínio não são expostas diretamente nas respostas.
 
 ## 📦 Modelo de dados
+
+```
+Usuario 1 ──────── N Despesa
+```
 
 **Usuario**
 
@@ -54,8 +62,8 @@ GestaoFinanceiraApi/
 | --- | --- | --- |
 | `id` | int | Identificador |
 | `nome` | string | Nome do usuário |
-| `email` | string | E-mail do usuário |
-| `saldo` | decimal | Saldo atual (nunca pode ser negativo) |
+| `email` | string | E-mail |
+| `saldo` | decimal | Saldo atual (não pode ser negativo) |
 
 **Despesa**
 
@@ -63,11 +71,11 @@ GestaoFinanceiraApi/
 | --- | --- | --- |
 | `id` | int | Identificador |
 | `descricao` | string | Descrição da despesa |
-| `valor` | decimal(18,2) | Valor da despesa |
-| `dataCriacao` | DateTime | Data de criação |
-| `usuarioId` | int? | Usuário dono da despesa |
+| `valor` | decimal(18,2) | Valor da despesa (deve ser maior que zero) |
+| `dataCriacao` | DateTime (UTC) | Data de criação, preenchida automaticamente |
+| `usuarioId` | int | Usuário dono da despesa (chave estrangeira) |
 
-Relacionamento: um **Usuário** possui várias **Despesas** (1:N).
+> Ao remover um usuário, suas despesas também são removidas (exclusão em cascata).
 
 ## 🚀 Como executar
 
@@ -78,46 +86,37 @@ Relacionamento: um **Usuário** possui várias **Despesas** (1:N).
 ### Passo a passo
 
 ```bash
-# 1. Clone o repositório
 git clone https://github.com/fragad3v/GestaoFinanceiraApi.git
 cd GestaoFinanceiraApi
-
-# 2. Restaure as dependências
 dotnet restore
-
-# 3. Execute a aplicação
 dotnet run
 ```
 
-A API ficará disponível em:
+A API sobe em:
 
 - HTTP: `http://localhost:5107`
 - HTTPS: `https://localhost:7165`
 
-Em ambiente `Development`, a raiz (`/`) redireciona automaticamente para o **Swagger UI** (`/swagger`).
+Em ambiente `Development`, a raiz (`/`) redireciona para o **Swagger UI** (`/swagger`), onde todos os endpoints podem ser testados.
 
-> O arquivo de banco `financas.db` é criado automaticamente na primeira execução (`EnsureCreated`), não sendo necessário rodar migrations.
+> O banco `financas.db` é criado automaticamente na primeira execução e não é versionado no Git.
 
 ## 📡 Endpoints
 
-Base URL: `http://localhost:5107`
-
 | Método | Rota | Descrição |
 | --- | --- | --- |
-| `GET` | `/usuarios` | Lista todos os usuários |
-| `GET` | `/usuarios/{id}` | Busca um usuário pelo ID |
-| `POST` | `/usuarios` | Cria um novo usuário (saldo inicial = 0) |
+| `GET` | `/usuarios` | Lista todos os usuários com despesas e saldo atualizado |
+| `GET` | `/usuarios/{id}` | Busca um usuário pelo Id, com o detalhe das despesas |
+| `POST` | `/usuarios` | Cria um usuário (saldo inicial = 0) |
 | `PUT` | `/usuarios/{id}/saldo` | Soma um valor ao saldo do usuário |
 | `DELETE` | `/usuarios/{id}` | Remove um usuário |
+| `POST` | `/despesas` | Registra uma despesa para um usuário |
 
 ### Exemplos
 
-**Criar usuário**
+**Criar usuário** — `POST /usuarios`
 
-```http
-POST /usuarios
-Content-Type: application/json
-
+```json
 {
   "nome": "Maria Silva",
   "email": "maria@email.com"
@@ -128,22 +127,20 @@ Resposta `201 Created`:
 
 ```json
 {
+  "id": 1,
   "nome": "Maria Silva",
   "email": "maria@email.com",
   "saldo": 0
 }
 ```
 
-**Atualizar saldo**
+**Adicionar saldo** — `PUT /usuarios/1/saldo`
 
-O valor enviado é **somado** ao saldo atual. Use valores negativos para debitar.
+O valor enviado é **somado** ao saldo atual. Use um valor negativo para debitar.
 
-```http
-PUT /usuarios/1/saldo
-Content-Type: application/json
-
+```json
 {
-  "atualizacaoSaldo": 150.50
+  "atualizacaoSaldo": 1500.00
 }
 ```
 
@@ -151,15 +148,79 @@ Resposta `200 OK`:
 
 ```json
 {
-  "novoSaldo": 150.50
+  "novoSaldo": 1500.00
 }
 ```
 
-**Deletar usuário**
+**Registrar despesa** — `POST /despesas`
 
-```http
-DELETE /usuarios/1
+```json
+{
+  "descricao": "Supermercado",
+  "valor": 230.90,
+  "usuarioId": 1
+}
 ```
+
+Resposta `201 Created`:
+
+```json
+{
+  "descricao": "Supermercado",
+  "valor": 230.90,
+  "usuarioId": 1
+}
+```
+
+**Listar usuários** — `GET /usuarios`
+
+Nesta listagem as despesas vêm resumidas, sem ids.
+
+```json
+[
+  {
+    "id": 1,
+    "nome": "Maria Silva",
+    "email": "maria@email.com",
+    "saldo": 1500.00,
+    "despesas": [
+      {
+        "descricao": "Supermercado",
+        "valor": 230.90,
+        "dataCriacao": "2026-01-10T14:30:00Z"
+      }
+    ],
+    "saldoAtualizado": 1269.10
+  }
+]
+```
+
+**Buscar usuário por Id** — `GET /usuarios/1`
+
+Na busca individual cada despesa traz seu próprio `id` e o `usuarioId` do dono.
+
+```json
+{
+  "id": 1,
+  "nome": "Maria Silva",
+  "email": "maria@email.com",
+  "saldo": 1500.00,
+  "despesas": [
+    {
+      "id": 1,
+      "descricao": "Supermercado",
+      "valor": 230.90,
+      "dataCriacao": "2026-01-10T14:30:00Z",
+      "usuarioId": 1
+    }
+  ],
+  "saldoAtualizado": 1269.10
+}
+```
+
+`saldoAtualizado = saldo − soma das despesas`
+
+**Deletar usuário** — `DELETE /usuarios/1`
 
 Resposta `200 OK` (retorna o usuário removido):
 
@@ -168,51 +229,38 @@ Resposta `200 OK` (retorna o usuário removido):
   "id": 1,
   "nome": "Maria Silva",
   "email": "maria@email.com",
-  "saldo": 150.50
+  "saldo": 1500.00
 }
 ```
 
-### Códigos de resposta
+### Respostas de erro
 
-| Código | Situação |
-| --- | --- |
-| `200 OK` | Operação realizada com sucesso |
-| `201 Created` | Usuário criado |
-| `400 Bad Request` | Dados inválidos ou regra de negócio violada (ex.: saldo negativo) |
-| `404 Not Found` | Usuário não encontrado |
-
-Exemplo de erro `404`:
-
-```json
-{ "erro": "Usuário 99 não encontrado." }
-```
-
-Exemplo de erro `400` (saldo ficaria negativo):
-
-```json
-{ "mensagem": "O saldo não pode ser negativo!" }
-```
+| Código | Situação | Exemplo de corpo |
+| --- | --- | --- |
+| `400 Bad Request` | Regra de negócio violada (saldo negativo, valor de despesa ≤ 0) | `{ "status": 400, "mensagem": "O saldo não pode ser negativo!" }` |
+| `404 Not Found` | Usuário não encontrado | `{ "erro": "Usuário 99 não encontrado." }` |
+| `500 Internal Server Error` | Erro inesperado | `{ "status": 500, "mensagem": "Ocorreu um erro interno no servidor." }` |
 
 ## 📏 Regras de negócio
 
 - Todo usuário é criado com **saldo 0**.
-- O **saldo não pode ficar negativo**: a entidade lança `InvalidOperationException`, convertida em `400 Bad Request` pelo middleware global.
-- Valores monetários de despesas usam precisão `decimal(18,2)`.
+- O **saldo não pode ficar negativo**: a regra é aplicada na própria entidade `Usuario`.
+- O **valor de uma despesa deve ser maior que zero**.
+- Só é possível registrar despesa para um **usuário existente**.
+- A data da despesa é registrada automaticamente em **UTC**.
+- O **saldo atualizado** é calculado na consulta (`saldo − total de despesas`). Registrar uma despesa não altera o saldo armazenado.
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap (v2)
 
-- [ ] Expor os endpoints de **despesas** (a camada de serviço e repositório já existe)
-- [ ] Implementar a subtração de valores em despesas (`SubtrairValor`)
-- [ ] Validação de entrada (e-mail válido, nome obrigatório, e-mail único)
-- [ ] Uso de `async/await` nas operações de banco
-- [ ] Testes unitários e de integração
-- [ ] Autenticação e autorização
-- [ ] Migrations do EF Core no lugar de `EnsureCreated`
-- [ ] Dockerfile
-
-## 🤝 Contribuindo
-
-Sugestões e pull requests são bem-vindos! Abra uma issue para discutir mudanças maiores.
+- [ ] Atualizar e remover despesa (`PUT/DELETE /usuarios/{usuarioId}/despesas/{despesaId}`)
+- [ ] Listar despesas de um usuário com filtros por período
+- [ ] Validação de entrada (nome obrigatório, e-mail válido e único)
+- [ ] Interfaces nos repositórios (inversão de dependência)
+- [ ] Testes unitários e de integração (xUnit)
+- [ ] Categorias de despesa
+- [ ] Migrations do EF Core
+- [ ] Autenticação com JWT
+- [ ] Docker e CI com GitHub Actions
 
 ## 👤 Autor
 
