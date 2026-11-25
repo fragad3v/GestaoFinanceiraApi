@@ -31,7 +31,7 @@ namespace GestaoFinanceiraApi.API
             var response = await usuarioService.CriarUsuarioAsync(dto);
             return response is null
                 ? Results.BadRequest(new { erro = "Não foi possível criar o usuário." })
-                : Results.Created("/usuarios", response);
+                : Results.Created($"/usuarios/{response.Id}", response);
         }
 
         [EndpointDescription("Adicionar saldo.")]

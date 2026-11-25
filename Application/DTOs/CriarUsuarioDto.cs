@@ -2,5 +2,5 @@
 {
     public record CriarUsuarioRequestDto(string Nome, string Email);
 
-    public record CriarUsuarioResponseDto(string Nome, string Email, decimal Saldo);
+    public record CriarUsuarioResponseDto(int Id, string Nome, string Email, decimal Saldo);
 }

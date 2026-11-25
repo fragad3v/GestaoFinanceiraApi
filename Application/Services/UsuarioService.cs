@@ -45,7 +45,7 @@ namespace GestaoFinanceiraApi.Application.Services
                 return null;
             }
 
-            return new CriarUsuarioResponseDto(usuarioCriado.Nome, usuarioCriado.Email, usuarioCriado.Saldo);
+            return new CriarUsuarioResponseDto(usuarioCriado.Id, usuarioCriado.Nome, usuarioCriado.Email, usuarioCriado.Saldo);
         }
 
         public async Task<AtualizarSaldoResponseDto?> AtualizarSaldoAsync(int id, AtualizarSaldoRequestDto dto)
