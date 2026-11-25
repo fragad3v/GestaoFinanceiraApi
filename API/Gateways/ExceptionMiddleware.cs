@@ -16,7 +16,6 @@ public class ExceptionMiddleware
     {
         try
         {
-            // Continua a execução do pipeline da aplicação
             await _next(context);
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
