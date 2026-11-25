@@ -9,5 +9,5 @@ namespace GestaoFinanceiraApi.Application.DTOs
     public record BuscarUsuarioRequestDto(int Id);
     public record BuscarUsuarioResponseDto(int Id, string Nome, string Email, decimal Saldo, IEnumerable<DespesaDetalheResponseDto> Despesas, decimal SaldoAtualizado);
 
-    public record DespesaDetalheResponseDto(int Id, string Descricao, decimal Valor, DateTime DataCriacao, int UsuarioId);
+    public record DespesaDetalheResponseDto(int Id, string Descricao, decimal Valor, string DataCriacao, int UsuarioId);
 }

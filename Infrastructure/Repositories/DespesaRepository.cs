@@ -22,11 +22,6 @@ namespace GestaoFinanceiraApi.Infrastructure.Repositories
 
             return true;
         }
-
-        public async Task<bool> UsuarioExisteAsync(int usuarioId)
-        {
-            return await _dbContext.Usuarios.AnyAsync(u => u.Id == usuarioId);
-        }
     }
 }
 

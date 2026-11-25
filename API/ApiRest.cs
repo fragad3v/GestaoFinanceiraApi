@@ -63,7 +63,7 @@ namespace GestaoFinanceiraApi.API
         {
             var despesas = await despesaService.AdicionarDespesaAsync(dto);
             return despesas is null
-                ? Results.NotFound(new { erro = $"Usuário {dto.UsuarioId} não encontrado." })
+                ? Results.NotFound(new { erro = $"Não foi possível criar a despesa." })
                 : Results.Created($"/usuarios/{dto.UsuarioId}", despesas);
         }
     }

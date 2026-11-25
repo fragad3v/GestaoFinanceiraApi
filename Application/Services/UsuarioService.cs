@@ -1,6 +1,7 @@
 ﻿using GestaoFinanceiraApi.Application.DTOs;
 using GestaoFinanceiraApi.Domain.Entities;
 using GestaoFinanceiraApi.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace GestaoFinanceiraApi.Application.Services
 {
@@ -79,5 +80,7 @@ namespace GestaoFinanceiraApi.Application.Services
                 u.Saldo - u.Despesas.Sum(d => d.Valor)
             ));
         }
+
     }
 }
+

@@ -7,13 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Domain\Models\**" />
-    <Content Remove="Domain\Models\**" />
-    <EmbeddedResource Remove="Domain\Models\**" />
-    <None Remove="Domain\Models\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
